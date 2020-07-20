@@ -17,7 +17,7 @@ public class Unit : MonoBehaviour
         row = pos[0];
         col = pos[1];
         attackRange = 1;
-        moveRange = 6;
+        moveRange = 3;
         gameObj = obj;
     }
 

@@ -59,6 +59,11 @@ public class GameMap : MonoBehaviour
         Destroy(referenceTile);
     }
 
+    internal void OnCutsceneFinished()
+    {
+        cursor.CheckTurnFinished();
+    }
+
     internal bool CheckWithinBounds(int row, int col)
     {
         return row >= 0 && row < rows && col >= 0 && col < cols;

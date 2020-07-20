@@ -9,7 +9,7 @@ public class UiManager : MonoBehaviour
     GameObject attackMenu;
 
     [SerializeField]
-    GameObject gameMap;
+    internal GameObject gameMap;
 
     [SerializeField]
     GameObject attackCutscene;
@@ -54,6 +54,11 @@ public class UiManager : MonoBehaviour
         Camera mainCamera = gameMap.GetComponent<GameMap>().mainCamera;
         attackCutscene.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, 1);
         attackCutscene.GetComponent<AttackCutscene>().Play(attacker, defender);
+    }
+
+    internal void OnCutsceneFinished()
+    {
+        gameMap.GetComponent<GameMap>().OnCutsceneFinished();
     }
 
     // Update is called once per frame

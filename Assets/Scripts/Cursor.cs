@@ -102,20 +102,25 @@ public class Cursor : MonoBehaviour
                     currState = CursorState.SelectTarget;
                 } else
                 {
-                    if (HasAllPlayerUnitsMoved())
-                    {
-                        gameMap.playerUnits.FinishTurn();
-                    }
-                    else
-                    {
-                        currState = CursorState.MovingCursor;
-                    }
+                    CheckTurnFinished();
                 }
             }
             else
             {
                 Debug.Log("You can't move to that square!");
             }
+        }
+    }
+
+    public void CheckTurnFinished()
+    {
+        if (HasAllPlayerUnitsMoved())
+        {
+            gameMap.playerUnits.FinishTurn();
+        }
+        else
+        {
+            currState = CursorState.MovingCursor;
         }
     }
 
@@ -171,6 +176,16 @@ public class Cursor : MonoBehaviour
         }
     }
 
+    void ListenCancel()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ClearAllHighlightedSquares();
+            highlightedUnit = null;
+            currState = CursorState.MovingCursor;
+        }
+    }
+
     void ListenEnemyMovement()
     {
         if (!gameMap.playerUnits.HasAllPlayerUnitsMoved())
@@ -188,6 +203,7 @@ public class Cursor : MonoBehaviour
                 ListenMovementInput();
                 break;
             case CursorState.SelectDest:
+                ListenCancel();
                 ListenDestSelection();
                 break;
             case CursorState.SelectTarget:
@@ -202,7 +218,10 @@ public class Cursor : MonoBehaviour
 
     bool CheckMovable()
     {
-        if (!highlightedUnit || gameMap.playerUnits.IsUnitAtPosition(cursorX, cursorY))
+        GameObject obj = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY);
+        string highlightedUnitName = highlightedUnit.GetComponent<Unit>().unitName;
+
+        if (!highlightedUnit || (obj != null && !obj.GetComponent<Unit>().unitName.Equals(highlightedUnitName)))
         {
             return false;
         }
