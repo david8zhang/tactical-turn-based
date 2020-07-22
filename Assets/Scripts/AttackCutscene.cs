@@ -10,8 +10,11 @@ public class AttackCutscene : MonoBehaviour
     [SerializeField]
     GameObject uiManager;
 
-    GameObject cutsceneAttacker;
-    GameObject cutsceneDefender;
+    [SerializeField]
+    CutsceneUnit attackerUnit;
+
+    [SerializeField]
+    CutsceneUnit defenderUnit;
 
     Vector3 oldAttackerPosition;
     Vector3 windupPosition;
@@ -31,18 +34,12 @@ public class AttackCutscene : MonoBehaviour
         // Get all game object references
         GameObject attackerObj = attacker.gameObject;
         GameObject defenderObj = defender.gameObject;
-        cutsceneAttacker = gameObject.transform.Find("Attacker").gameObject;
-        cutsceneDefender = gameObject.transform.Find("Defender").gameObject;
 
-        // Dynamically attach animator controller
-        cutsceneAttacker.GetComponent<Animator>().runtimeAnimatorController = attackerObj.GetComponent<Animator>().runtimeAnimatorController;
-        cutsceneDefender.GetComponent<Animator>().runtimeAnimatorController = defenderObj.GetComponent<Animator>().runtimeAnimatorController;
-
-        // initialization for attack animation
-        cutsceneAttacker.GetComponent<Animator>().SetBool("isAttacking", true);
-        oldAttackerPosition = cutsceneAttacker.transform.position;
-        windupPosition = cutsceneAttacker.transform.position + new Vector3(-1, 0, 0);
-
+        // Set all game object references to cutscene unit
+        attackerUnit.SetUnitObjRef(attackerObj);
+        defenderUnit.SetUnitObjRef(defenderObj);
+        oldAttackerPosition = attackerUnit.gameObject.transform.position;
+        windupPosition = attackerUnit.gameObject.transform.position + new Vector3(-1, 0, 0);
 
         isAttacking = true;
         StartCoroutine(PlayCutscene());
@@ -50,6 +47,10 @@ public class AttackCutscene : MonoBehaviour
 
     internal void PlayAttackAnimation()
     {
+
+        GameObject cutsceneDefender = defenderUnit.gameObject;
+        GameObject cutsceneAttacker = attackerUnit.gameObject;
+
         // Move Attacker forward
         countDown -= Time.deltaTime;
         Vector3 targetPosition = cutsceneDefender.transform.position;

@@ -10,6 +10,8 @@ public class Unit : MonoBehaviour
     public int moveRange;
     public int attackRange;
     public GameObject gameObj;
+    public int health;
+    public int maxHealth;
 
     public void Create(int[] pos, string name, GameObject obj)
     {
@@ -19,6 +21,8 @@ public class Unit : MonoBehaviour
         attackRange = 1;
         moveRange = 3;
         gameObj = obj;
+        maxHealth = 100;
+        health = 100;
     }
 
     public void Move(int row, int col, GameMap gameMap)
@@ -26,5 +30,10 @@ public class Unit : MonoBehaviour
         this.row = row;
         this.col = col;
         gameMap.MoveObject(row, col, gameObject);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
     }
 }
