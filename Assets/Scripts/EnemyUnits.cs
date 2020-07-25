@@ -1,76 +1,76 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyUnits : MonoBehaviour
+public class EnemyUnits : UnitsManager
 {
-    [SerializeField]
-    internal GameMap gameMap;
-
-    List<GameObject> units = new List<GameObject>();
-
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
-        SpawnUnits();
-    }
-
-    void SpawnUnits()
-    {
-        // Hardcoded enemy unit starting positions
-        List<int[]> unitPositions = new List<int[]>();
-        unitPositions.Add(new int[] { 0, gameMap.cols - 1 });
-        unitPositions.Add(new int[] { 1, gameMap.cols - 2 });
-        unitPositions.Add(new int[] { 2, gameMap.cols - 1 });
-        GameObject maskReference = (GameObject)Instantiate(Resources.Load("Mask"));
-        for (int i = 0; i < unitPositions.Count; i++)
+        SetSide(Side.Enemy);
+        List<int[]> unitPositions = new List<int[]>
         {
-            int[] pos = unitPositions[i];
-            GameObject unitObj = gameMap.SpawnUnit(pos[0], pos[1], maskReference);
-            unitObj.GetComponent<SpriteRenderer>().flipX = true;
-            Unit unit = unitObj.GetComponent<Unit>();
-            unit.Create(pos,"enemy " + i, unitObj);
-            units.Add(unitObj);
-        }
-        Destroy(maskReference);
+            new int[] { 0, gameMap.cols - 1 },
+            new int[] { 1, gameMap.cols - 2 },
+            new int[] { 2, gameMap.cols - 1 }
+        };
+        GameObject maskReference = (GameObject)Instantiate(Resources.Load("Mask"));
+        SpawnUnits(maskReference, unitPositions);
+        FlipUnits();
     }
 
-    internal bool IsEnemyInSquare(int row, int col)
+    internal void FlipUnits()
     {
         for (int i = 0; i < units.Count; i++)
         {
-            Unit unit = units[i].GetComponent<Unit>();
-            if (unit.row == row && unit.col == col)
-            {
-                return true;
-            }
+            units[i].GetComponent<SpriteRenderer>().flipX = true;
         }
-        return false;
     }
 
     internal void StartTurn()
     {
-        // TODO: Do some AI logic to move the enemy units here
-        Debug.Log("Enemy moving...");
+        // Move towards the player units
+        /*
+         * For each unit in units list:
+         *   - Similar to player unit, calculate all moveable squares
+         *   - For each moveable square return the one that is closest to a player unit
+         */
+
+        foreach (GameObject unitObj in units)
+        {
+            int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
+            MoveUnit(moveDes[0], moveDes[1], unitObj);
+        }
         gameMap.playerUnits.StartTurn();
     }
 
-    internal GameObject GetEnemyObjAtPosition(int row, int col)
-    {
-        for (int i = 0; i < units.Count; i++)
-        {
-            Unit unit = units[i].GetComponent<Unit>();
-            if (unit.row == row && unit.col == col)
-            {
-                return units[i];
-            }
-        }
-        return null;
+    private int ManhattanDistance(int[] start, int[] end) {
+        return Math.Abs(start[0] - end[0]) + Math.Abs(start[1] - end[1]);
     }
 
-    // Update is called once per frame
-    void Update()
+    private int[] GetClosestSquareToPlayerUnit(GameObject unitObj)
     {
-        
+        Unit unit = unitObj.GetComponent<Unit>();
+        List<SquareWithRange> moveableSquares = GetSquaresWithinRange(unit.row, unit.col, unit.moveRange);
+        int[] coord = null;
+        int distance = Int32.MaxValue;
+        foreach (SquareWithRange sq in moveableSquares)
+        {
+            foreach (GameObject playerUnitObj in gameMap.playerUnits.units)
+            {
+                Unit playerUnit = playerUnitObj.GetComponent<Unit>();
+                int[] playerCoordinates = new int[] { playerUnit.row, playerUnit.col };
+                int distToPlayer = ManhattanDistance(sq.coordinates, playerCoordinates);
+                if (distToPlayer < distance &&
+                    !IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]) &&
+                    !gameMap.playerUnits.IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]))
+                {
+                    coord = sq.coordinates;
+                    distance = distToPlayer;
+                }
+            }
+        }
+        return coord;
     }
 }

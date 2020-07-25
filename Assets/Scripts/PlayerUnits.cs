@@ -2,75 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerUnits : MonoBehaviour
+public class PlayerUnits : UnitsManager
 {
-
-    [SerializeField]
-    internal GameMap gameMap;
-
-    List<GameObject> units = new List<GameObject>();
-    List<string> movedUnits = new List<string>();
-    
-
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
-        SpawnUnits();
-    }
+        base.Start();
 
-    void SpawnUnits()
-    {
-        // Hardcoded unit starting positions
-        List<int[]> unitPositions = new List<int[]>();
-        unitPositions.Add(new int[] { 0, 0 });
-        unitPositions.Add(new int[] { 1, 1 });
-        unitPositions.Add(new int[] { 2, 0 });
-
+        // Spawn player units
+        SetSide(Side.Player);
+        List<int[]> unitPositions = new List<int[]>
+        {
+            new int[] { 0, 0 },
+            new int[] { 1, 1 },
+            new int[] { 2, 0 }
+        };
         GameObject frogReference = (GameObject)Instantiate(Resources.Load("Frog"));
-        for (int i = 0; i < unitPositions.Count; i++)
-        {
-            int[] pos = unitPositions[i];
-            GameObject unitObj = gameMap.SpawnUnit(pos[0], pos[1], frogReference);
-            Unit unit = unitObj.GetComponent<Unit>();
-            unit.Create(pos, "unit " + i, unitObj);
-            units.Add(unitObj);
-        }
-        Destroy(frogReference);
-    }
-
-    internal bool IsUnitAtPosition(int row, int col)
-    {
-        for (int i = 0; i < units.Count; i++)
-        {
-            Unit u = units[i].GetComponent<Unit>();
-            if (u.row == row && u.col == col)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    internal GameObject GetUnitObjAtPosition(int row, int col)
-    {
-        for (int i = 0; i < units.Count; i++)
-        {
-            GameObject unitObj = units[i];
-            Unit u = unitObj.GetComponent<Unit>();
-            if (u.row == row && u.col == col)
-            {
-                return unitObj;
-            }
-        }
-        return null;
-    }
-
-    internal void MoveUnit(int row, int col, GameObject obj)
-    {
-        Unit unit = obj.GetComponent<Unit>();
-        unit.Move(row, col, gameMap);
-        unit.GetComponent<SpriteRenderer>().color = Color.gray;
-        movedUnits.Add(unit.unitName);
+        SpawnUnits(frogReference, unitPositions);
     }
 
     internal void FinishTurn()
@@ -95,7 +43,7 @@ public class PlayerUnits : MonoBehaviour
         List<int[]> squaresWithinAttackRange = GetSquaresWithinAttackRange(row, col, unit.attackRange);
         foreach (int[] coord in squaresWithinAttackRange)
         {
-            if (gameMap.enemyUnits.IsEnemyInSquare(coord[0], coord[1]))
+            if (gameMap.enemyUnits.IsUnitAtPosition(coord[0], coord[1]))
             {
                 return true;
             }
@@ -110,7 +58,7 @@ public class PlayerUnits : MonoBehaviour
         List<int[]> attackableEnemies = new List<int[]>();
         foreach (int[] coord in squaresWithinAttackRange)
         {
-            if (gameMap.enemyUnits.IsEnemyInSquare(coord[0], coord[1]))
+            if (gameMap.enemyUnits.IsUnitAtPosition(coord[0], coord[1]))
             {
                 attackableEnemies.Add(coord);
             }
@@ -174,10 +122,5 @@ public class PlayerUnits : MonoBehaviour
     internal bool HasAllPlayerUnitsMoved()
     {
         return movedUnits.Count == units.Count;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
     }
 }

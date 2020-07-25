@@ -12,12 +12,6 @@ public class Cursor : MonoBehaviour
         SelectDest,
         EnemyMoving
     }
-    struct SquareWithRange
-    {
-        public int[] coordinates;
-        public int range;
-    }
-
     [SerializeField]
     GameMap gameMap;
 
@@ -114,7 +108,7 @@ public class Cursor : MonoBehaviour
 
     public void CheckTurnFinished()
     {
-        if (HasAllPlayerUnitsMoved())
+        if (gameMap.playerUnits.HasAllPlayerUnitsMoved())
         {
             gameMap.playerUnits.FinishTurn();
         }
@@ -124,18 +118,13 @@ public class Cursor : MonoBehaviour
         }
     }
 
-    bool HasAllPlayerUnitsMoved()
-    {
-        return gameMap.playerUnits.HasAllPlayerUnitsMoved();
-    }
-
     void HighlightAttackableTargetTile(Color color)
     {
         int[] coord = attackableEnemies[attackableTargetIndex];
         gameMap.ChangeTileColor(coord[0], coord[1], color);
 
         Unit attackUnit = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY).GetComponent<Unit>();
-        Unit defenderUnit = gameMap.enemyUnits.GetEnemyObjAtPosition(coord[0], coord[1]).GetComponent<Unit>();
+        Unit defenderUnit = gameMap.enemyUnits.GetUnitObjAtPosition(coord[0], coord[1]).GetComponent<Unit>();
         gameMap.uiManager.GetComponent<UiManager>().ShowAttackMenu(attackUnit, defenderUnit);
     }
 
@@ -226,7 +215,7 @@ public class Cursor : MonoBehaviour
             return false;
         }
         Unit unit = highlightedUnit.GetComponent<Unit>();
-        List<SquareWithRange> moveableSquares = GetSquaresToHighlight(unit.row, unit.col, unit.moveRange);
+        List<UnitsManager.SquareWithRange> moveableSquares = gameMap.playerUnits.GetSquaresWithinRange(unit.row, unit.col, unit.moveRange);
         for (int i = 0; i < moveableSquares.Count; i++)
         {
             int[] coordinates = moveableSquares[i].coordinates;
@@ -247,8 +236,8 @@ public class Cursor : MonoBehaviour
     {
         Unit unit = highlightedUnit.GetComponent<Unit>();
         int moveAndAttackRange = unit.moveRange + unit.attackRange;
-        List<SquareWithRange> squaresToHighlight = GetSquaresToHighlight(unit.row, unit.col, moveAndAttackRange);
-        foreach (SquareWithRange s in squaresToHighlight)
+        List<UnitsManager.SquareWithRange> squaresToHighlight = gameMap.playerUnits.GetSquaresWithinRange(unit.row, unit.col, moveAndAttackRange);
+        foreach (UnitsManager.SquareWithRange s in squaresToHighlight)
         {
             int[] coord = s.coordinates;
             gameMap.ChangeTileColor(coord[0], coord[1], Color.white);
@@ -264,58 +253,12 @@ public class Cursor : MonoBehaviour
     {
         GameObject unit = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY);
         int moveRange = unit.GetComponent<Unit>().moveRange;
-        List<SquareWithRange> squaresToHighlight = GetSquaresToHighlight(cursorX, cursorY, moveRange);
-        foreach (SquareWithRange s in squaresToHighlight)
+        List<UnitsManager.SquareWithRange> squaresToHighlight = gameMap.playerUnits.GetSquaresWithinRange(cursorX, cursorY, moveRange);
+        foreach (UnitsManager.SquareWithRange s in squaresToHighlight)
         {
             int[] coord = s.coordinates;
             gameMap.ChangeTileColor(coord[0], coord[1], Color.blue);
         }
-    }
-
-    List<SquareWithRange> GetSquaresToHighlight(int startX, int startY, int range)
-    {
-        // Do a BFS to find all positions within moveRange
-        int currRange = 0;
-        HashSet<string> set = new HashSet<string>();
-        Queue<int[]> queue = new Queue<int[]>();
-        int[][] directions = new int[][]
-        {
-            new int[] {0, 1 },
-            new int[] {0, -1 },
-            new int[] {-1, 0 },
-            new int[] {1, 0 }
-        };
-        List<SquareWithRange> squares = new List<SquareWithRange>();
-        queue.Enqueue(new int[] { startX, startY });
-        while (queue.Count != 0 && currRange <= range)
-        {
-            int size = queue.Count;
-            for (int i = 0; i < size; i++)
-            {
-                int[] position = queue.Dequeue();
-                if (!set.Contains(position[0] + ", " + position[1]))
-                {
-                    set.Add(position[0] + ", " + position[1]);
-
-
-                    SquareWithRange sq;
-                    sq.coordinates = new int[] { position[0], position[1] };
-                    sq.range = currRange;
-                    squares.Add(sq);
-                    foreach (int[] dir in directions)
-                    {
-                        int newPosX = dir[0] + position[0];
-                        int newPosY = dir[1] + position[1];
-                        if (gameMap.CheckWithinBounds(newPosX, newPosY))
-                        {
-                            queue.Enqueue(new int[] { newPosX, newPosY });
-                        }
-                    }
-                }
-            }
-            currRange++;
-        }
-        return squares;
     }
 
     void HighlightAttackablePositions()
@@ -323,8 +266,8 @@ public class Cursor : MonoBehaviour
         GameObject unitObj = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY);
         Unit unit = unitObj.GetComponent<Unit>();
         int totalAttackRange = unit.moveRange + unit.attackRange;
-        List<SquareWithRange> squares = GetSquaresToHighlight(cursorX, cursorY, totalAttackRange);
-        foreach (SquareWithRange s in squares) {
+        List<UnitsManager.SquareWithRange> squares = gameMap.playerUnits.GetSquaresWithinRange(cursorX, cursorY, totalAttackRange);
+        foreach (UnitsManager.SquareWithRange s in squares) {
             if (s.range > unit.moveRange && s.range <= totalAttackRange)
             {
                 int[] coord = s.coordinates;
@@ -340,7 +283,7 @@ public class Cursor : MonoBehaviour
             int[] coord = attackableEnemies[attackableTargetIndex];
             gameMap.ChangeTileColor(coord[0], coord[1], Color.white);
         }
-        currState = CursorState.MovingCursor;
+        CheckTurnFinished();
     }
 
     internal void DisableSelection()

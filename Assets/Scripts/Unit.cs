@@ -13,6 +13,8 @@ public class Unit : MonoBehaviour
     public int health;
     public int maxHealth;
 
+    public bool isDead = false;
+
     public void Create(int[] pos, string name, GameObject obj)
     {
         unitName = name;
@@ -34,6 +36,15 @@ public class Unit : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        health -= damage;
+        health = Mathf.Max(health - damage, 0);
+        if (health == 0)
+        {
+            isDead = true;
+        }
+    }
+
+    public void Die()
+    {
+        Debug.Log("Show death cutscene...");
     }
 }
