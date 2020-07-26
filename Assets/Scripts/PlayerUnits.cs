@@ -23,7 +23,6 @@ public class PlayerUnits : UnitsManager
 
     internal void FinishTurn()
     {
-        Debug.Log("Called finish turn!");
         for (int i = 0; i < units.Count; i++)
         {
             units[i].GetComponent<SpriteRenderer>().color = Color.white;

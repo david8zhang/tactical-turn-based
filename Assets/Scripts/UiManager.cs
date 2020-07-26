@@ -12,7 +12,7 @@ public class UiManager : MonoBehaviour
     internal GameObject gameMap;
 
     [SerializeField]
-    GameObject attackCutscene;
+    internal GameObject attackCutscene;
 
     [SerializeField]
     Canvas canvas;
@@ -46,6 +46,12 @@ public class UiManager : MonoBehaviour
     public void HideAttackMenu()
     {
         attackMenu.SetActive(false);
+    }
+
+    public void PlayAttackCutscene(Unit attacker, Unit defender) {
+        this.attacker = attacker;
+        this.defender = defender;
+        PlayAttackCutscene();
     }
 
     public void PlayAttackCutscene()

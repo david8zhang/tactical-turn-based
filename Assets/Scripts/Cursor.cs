@@ -276,14 +276,19 @@ public class Cursor : MonoBehaviour
         }
     }
 
-    public void FinishAttackOrWait()
+    public void Wait()
+    {
+        DehighlightAttackSquares();
+        CheckTurnFinished();
+    }
+
+    public void DehighlightAttackSquares()
     {
         if (attackableEnemies.Count > 0)
         {
             int[] coord = attackableEnemies[attackableTargetIndex];
             gameMap.ChangeTileColor(coord[0], coord[1], Color.white);
         }
-        CheckTurnFinished();
     }
 
     internal void DisableSelection()

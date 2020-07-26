@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class EnemyUnits : UnitsManager
 {
+    int unitToMoveIndex = 0;
     // Start is called before the first frame update
     public override void Start()
     {
@@ -30,23 +31,74 @@ public class EnemyUnits : UnitsManager
 
     internal void StartTurn()
     {
-        // Move towards the player units
-        /*
-         * For each unit in units list:
-         *   - Similar to player unit, calculate all moveable squares
-         *   - For each moveable square return the one that is closest to a player unit
-         */
+        Debug.Log("Starting enemy turn...");
+        AttachOnFinishedDelegate();
+        ProcessNextUnitTurn();
+    }
 
-        foreach (GameObject unitObj in units)
-        {
-            int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
-            MoveUnit(moveDes[0], moveDes[1], unitObj);
-        }
-        gameMap.playerUnits.StartTurn();
+    public void ProcessNextUnitTurn()
+    {
+        ProcessMove();
+    }
+
+    private void DetachOnFinishedDelegate()
+    {
+        UiManager uiManager = gameMap.uiManager.GetComponent<UiManager>();
+        AttackCutscene attackCutscene = uiManager.attackCutscene.GetComponent<AttackCutscene>();
+        attackCutscene.onFinishedDelegate -= ProcessNextUnitTurn;
+    }
+
+    private void AttachOnFinishedDelegate()
+    {
+        UiManager uiManager = gameMap.uiManager.GetComponent<UiManager>();
+        AttackCutscene attackCutscene = uiManager.attackCutscene.GetComponent<AttackCutscene>();
+        attackCutscene.onFinishedDelegate += ProcessNextUnitTurn;
     }
 
     private int ManhattanDistance(int[] start, int[] end) {
         return Math.Abs(start[0] - end[0]) + Math.Abs(start[1] - end[1]);
+    }
+
+    private void ProcessMove()
+    {
+        if (unitToMoveIndex < units.Count)
+        {
+            GameObject unitObj = units[unitToMoveIndex];
+            int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
+            MoveUnit(moveDes[0], moveDes[1], unitObj);
+            AttackIfPossible(unitObj);
+            unitToMoveIndex++;
+        } else
+        {
+            DetachOnFinishedDelegate();
+            gameMap.playerUnits.StartTurn();
+            unitToMoveIndex = 0;
+        }
+    }
+
+    private void AttackIfPossible(GameObject unitObj)
+    {
+        Unit unit = unitObj.GetComponent<Unit>();
+        List<SquareWithRange> attackableSquares = GetSquaresWithinRange(unit.row, unit.col, unit.attackRange);
+        List<GameObject> possibleTargets = new List<GameObject>();
+        foreach (SquareWithRange sq in attackableSquares)
+        {
+            int[] coord = sq.coordinates;
+            if (gameMap.playerUnits.IsUnitAtPosition(coord[0], coord[1]))
+            {
+                possibleTargets.Add(gameMap.playerUnits.GetUnitObjAtPosition(coord[0], coord[1]));
+            }
+        }
+
+        if (possibleTargets.Count > 0)
+        {
+            // TODO: Intelligently select an enemy to attack
+            Unit playerUnitToAttack = possibleTargets[0].GetComponent<Unit>();
+            gameMap.uiManager.GetComponent<UiManager>().PlayAttackCutscene(unit, playerUnitToAttack);
+        } else
+        {
+            ProcessNextUnitTurn();
+        }
     }
 
     private int[] GetClosestSquareToPlayerUnit(GameObject unitObj)

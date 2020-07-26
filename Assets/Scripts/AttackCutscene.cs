@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class AttackCutscene : MonoBehaviour
 {
-
-    bool isAttacking = false;
-
     [SerializeField]
     GameObject uiManager;
 
@@ -15,6 +12,9 @@ public class AttackCutscene : MonoBehaviour
 
     [SerializeField]
     CutsceneUnit defenderUnit;
+
+    public delegate void OnFinishedDelegate();
+    public OnFinishedDelegate onFinishedDelegate;
 
     // Start is called before the first frame update
     void Start()
@@ -50,9 +50,8 @@ public class AttackCutscene : MonoBehaviour
         attackerUnit.Reset();
         gameObject.SetActive(false);
         uiManager.GetComponent<UiManager>().OnCutsceneFinished();
+        onFinishedDelegate?.Invoke();
     }
-
-
 
     // Update is called once per frame
     void Update()
