@@ -23,11 +23,8 @@ public class PlayerUnits : UnitsManager
 
     internal void FinishTurn()
     {
-        for (int i = 0; i < units.Count; i++)
-        {
-            units[i].GetComponent<SpriteRenderer>().color = Color.white;
-        }
-        gameMap.enemyUnits.StartTurn();
+        ResetUnitHighlight();
+        StartCoroutine(gameMap.enemyUnits.StartTurn());
         gameMap.cursor.DisableSelection();
     }
 

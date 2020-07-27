@@ -48,23 +48,46 @@ public class UiManager : MonoBehaviour
         attackMenu.SetActive(false);
     }
 
-    public void PlayAttackCutscene(Unit attacker, Unit defender) {
-        this.attacker = attacker;
-        this.defender = defender;
-        PlayAttackCutscene();
+    public void OnAttackButtonClick()
+    {
+        PlayPlayerAttackCutscene();
     }
 
-    public void PlayAttackCutscene()
+    public void InitCutscene()
     {
         HideAttackMenu();
         Camera mainCamera = gameMap.GetComponent<GameMap>().mainCamera;
         attackCutscene.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, 1);
-        attackCutscene.GetComponent<AttackCutscene>().Play(attacker, defender);
     }
 
-    internal void OnCutsceneFinished()
+    public IEnumerator PlayEnemyAttackCutscene(Unit attacker, Unit defender) {
+        AttackCutscene scene = attackCutscene.GetComponent<AttackCutscene>();
+        this.attacker = attacker;
+        this.defender = defender;
+        InitCutscene();
+        scene.SetReferences(attacker, defender);
+        yield return StartCoroutine(scene.PlayEnemyAttack());
+    }
+
+    public void PlayPlayerAttackCutscene()
     {
-        gameMap.GetComponent<GameMap>().OnCutsceneFinished();
+        AttackCutscene scene = attackCutscene.GetComponent<AttackCutscene>();
+        InitCutscene();
+        scene.SetReferences(attacker, defender);
+        scene.PlayPlayerAttack();
+    }
+
+    internal void OnPlayerCutsceneFinished()
+    {
+        GameMap gm = gameMap.GetComponent<GameMap>();
+        gm.OnCutsceneFinished();
+        gm.CheckTurnFinished();
+    }
+
+    internal void OnEnemyCutsceneFinished()
+    {
+        GameMap gm = gameMap.GetComponent<GameMap>();
+        gm.OnCutsceneFinished();
     }
 
     // Update is called once per frame

@@ -64,7 +64,10 @@ public class GameMap : MonoBehaviour
         // Remove all dead units
         playerUnits.ClearDeadUnits();
         enemyUnits.ClearDeadUnits();
+    }
 
+    internal void CheckTurnFinished()
+    {
         cursor.CheckTurnFinished();
     }
 

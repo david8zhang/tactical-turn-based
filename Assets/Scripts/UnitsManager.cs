@@ -94,6 +94,14 @@ public class UnitsManager : MonoBehaviour
         }
     }
 
+    public void ResetUnitHighlight()
+    {
+        for (int i = 0; i < units.Count; i++)
+        {
+            units[i].GetComponent<SpriteRenderer>().color = Color.white;
+        }
+    }
+
     public List<SquareWithRange> GetSquaresWithinRange(int startX, int startY, int range)
     {
         // Do a BFS to find all positions within moveRange

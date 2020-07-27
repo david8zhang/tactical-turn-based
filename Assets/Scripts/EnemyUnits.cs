@@ -29,54 +29,30 @@ public class EnemyUnits : UnitsManager
         }
     }
 
-    internal void StartTurn()
+    internal IEnumerator StartTurn()
     {
-        Debug.Log("Starting enemy turn...");
-        AttachOnFinishedDelegate();
-        ProcessNextUnitTurn();
-    }
-
-    public void ProcessNextUnitTurn()
-    {
-        ProcessMove();
-    }
-
-    private void DetachOnFinishedDelegate()
-    {
-        UiManager uiManager = gameMap.uiManager.GetComponent<UiManager>();
-        AttackCutscene attackCutscene = uiManager.attackCutscene.GetComponent<AttackCutscene>();
-        attackCutscene.onFinishedDelegate -= ProcessNextUnitTurn;
-    }
-
-    private void AttachOnFinishedDelegate()
-    {
-        UiManager uiManager = gameMap.uiManager.GetComponent<UiManager>();
-        AttackCutscene attackCutscene = uiManager.attackCutscene.GetComponent<AttackCutscene>();
-        attackCutscene.onFinishedDelegate += ProcessNextUnitTurn;
+        foreach (GameObject unitObj in units)
+        {
+            yield return StartCoroutine(ProcessMove(unitObj));
+        }
+        ResetUnitHighlight();
+        gameMap.playerUnits.StartTurn();
     }
 
     private int ManhattanDistance(int[] start, int[] end) {
         return Math.Abs(start[0] - end[0]) + Math.Abs(start[1] - end[1]);
     }
 
-    private void ProcessMove()
+    private IEnumerator ProcessMove(GameObject unitObj)
     {
-        if (unitToMoveIndex < units.Count)
-        {
-            GameObject unitObj = units[unitToMoveIndex];
-            int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
-            MoveUnit(moveDes[0], moveDes[1], unitObj);
-            AttackIfPossible(unitObj);
-            unitToMoveIndex++;
-        } else
-        {
-            DetachOnFinishedDelegate();
-            gameMap.playerUnits.StartTurn();
-            unitToMoveIndex = 0;
-        }
+        int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
+        MoveUnit(moveDes[0], moveDes[1], unitObj);
+        yield return new WaitForSeconds(2f);
+        yield return AttackIfPossible(unitObj);
+        yield return new WaitForSeconds(1f);
     }
 
-    private void AttackIfPossible(GameObject unitObj)
+    public IEnumerator AttackIfPossible(GameObject unitObj)
     {
         Unit unit = unitObj.GetComponent<Unit>();
         List<SquareWithRange> attackableSquares = GetSquaresWithinRange(unit.row, unit.col, unit.attackRange);
@@ -92,12 +68,10 @@ public class EnemyUnits : UnitsManager
 
         if (possibleTargets.Count > 0)
         {
+            Debug.Log(unit.unitName + "attacks!");
             // TODO: Intelligently select an enemy to attack
             Unit playerUnitToAttack = possibleTargets[0].GetComponent<Unit>();
-            gameMap.uiManager.GetComponent<UiManager>().PlayAttackCutscene(unit, playerUnitToAttack);
-        } else
-        {
-            ProcessNextUnitTurn();
+            yield return StartCoroutine(gameMap.uiManager.GetComponent<UiManager>().PlayEnemyAttackCutscene(unit, playerUnitToAttack));
         }
     }
 

@@ -13,16 +13,13 @@ public class AttackCutscene : MonoBehaviour
     [SerializeField]
     CutsceneUnit defenderUnit;
 
-    public delegate void OnFinishedDelegate();
-    public OnFinishedDelegate onFinishedDelegate;
-
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    internal void Play(Unit attacker, Unit defender)
+    internal void SetReferences(Unit attacker, Unit defender)
     {
         gameObject.SetActive(true);
 
@@ -33,24 +30,39 @@ public class AttackCutscene : MonoBehaviour
         // Set all game object references to cutscene unita
         attackerUnit.SetUnitObjRef(attackerObj);
         defenderUnit.SetUnitObjRef(defenderObj);
-
-        // Have attacker unit attack defender
-        attackerUnit.Attack(defenderUnit);
-        StartCoroutine(PlayCutscene());
     }
 
-    IEnumerator PlayCutscene()
+    internal IEnumerator PlayEnemyAttack()
     {
-        yield return new WaitForSeconds(5);
-        OnCutsceneFinished();
+        attackerUnit.Attack(defenderUnit);
+        yield return StartCoroutine(WaitForEnemyDelay());
     }
 
-    void OnCutsceneFinished()
+
+    internal void PlayPlayerAttack()
+    {
+        attackerUnit.Attack(defenderUnit);
+        StartCoroutine(WaitForPlayerDelay());
+    }
+
+    void HideAttackCutscene()
     {
         attackerUnit.Reset();
         gameObject.SetActive(false);
-        uiManager.GetComponent<UiManager>().OnCutsceneFinished();
-        onFinishedDelegate?.Invoke();
+    }
+
+    IEnumerator WaitForEnemyDelay()
+    {
+        yield return new WaitForSeconds(5);
+        HideAttackCutscene();
+        uiManager.GetComponent<UiManager>().OnEnemyCutsceneFinished();
+    }
+
+    IEnumerator WaitForPlayerDelay()
+    {
+        yield return new WaitForSeconds(5);
+        HideAttackCutscene();
+        uiManager.GetComponent<UiManager>().OnPlayerCutsceneFinished();
     }
 
     // Update is called once per frame
