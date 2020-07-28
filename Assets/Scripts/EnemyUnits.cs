@@ -47,7 +47,7 @@ public class EnemyUnits : UnitsManager
     {
         int[] moveDes = GetClosestSquareToPlayerUnit(unitObj);
         MoveUnit(moveDes[0], moveDes[1], unitObj);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         yield return AttackIfPossible(unitObj);
         yield return new WaitForSeconds(1f);
     }

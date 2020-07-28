@@ -210,7 +210,9 @@ public class Cursor : MonoBehaviour
         GameObject obj = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY);
         string highlightedUnitName = highlightedUnit.GetComponent<Unit>().unitName;
 
-        if (!highlightedUnit || (obj != null && !obj.GetComponent<Unit>().unitName.Equals(highlightedUnitName)))
+        if (!highlightedUnit ||
+           (obj != null && !obj.GetComponent<Unit>().unitName.Equals(highlightedUnitName)) ||
+           gameMap.enemyUnits.IsUnitAtPosition(cursorX, cursorY))
         {
             return false;
         }

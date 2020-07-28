@@ -7,20 +7,15 @@ public class CutsceneUnit : MonoBehaviour
 
     [SerializeField]
     HealthBar healthbar;
-    GameObject unitObjectRef;
+    public GameObject unitObjectRef;
 
 
     // Attack animation references
     Vector3 oldAttackerPosition;
-    Vector3 windupPosition;
+    Vector3 attackerWindUp;
     bool isAttacking;
-    float countDown = 2.0f;
+    float attackCountdown = 2.0f;
     GameObject defender;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
     // Update is called once per frame
     void Update()
@@ -34,7 +29,7 @@ public class CutsceneUnit : MonoBehaviour
     internal void PlayAttackAnimation()
     {
         // Move Attacker forward
-        countDown -= Time.deltaTime;
+        attackCountdown -= Time.deltaTime;
         Vector3 targetPosition = defender.transform.position;
         float forwardStep = 35 * Time.deltaTime;
         float backwardStep = 5 * Time.deltaTime;
@@ -42,35 +37,42 @@ public class CutsceneUnit : MonoBehaviour
         Vector3 currentPosition = gameObject.transform.position;
 
         // Wind up animation
-        if (countDown > 1.0f && countDown <= 2.0f)
+        if (attackCountdown > 1.0f && attackCountdown <= 2.0f)
         {
-            gameObject.transform.position = Vector3.MoveTowards(currentPosition, windupPosition, backwardStep);
+
+            gameObject.transform.position = Vector3.MoveTowards(currentPosition, attackerWindUp, backwardStep);
         }
 
         // Overshoot and pullback
-        if (countDown > 0.8f && countDown <= 1.0f)
+        if (attackCountdown > 0.8f && attackCountdown <= 1.0f)
         {
             gameObject.transform.position = Vector3.MoveTowards(gameObject.transform.position, targetPosition, forwardStep);
         }
-        else if (countDown > 0.5f && countDown <= 0.7f)
+        else if (attackCountdown > 0.5f && attackCountdown <= 0.7f)
         {
             gameObject.transform.position = Vector3.MoveTowards(gameObject.transform.position, oldAttackerPosition, forwardStep);
         }
+        if (attackCountdown <= 0.5f)
+        {
+            gameObject.GetComponent<Animator>().SetBool("isAttacking", false);
+        }
     }
 
-    public void Reset()
+    public void ResetAttacker()
     {
         oldAttackerPosition = new Vector3();
-        windupPosition = new Vector3();
+        attackerWindUp = new Vector3();
         isAttacking = false;
-        countDown = 2.0f;
+        attackCountdown = 2.0f;
         defender = null;
     }
 
     public void Attack(CutsceneUnit defenderUnit)
     {
+        gameObject.GetComponent<Animator>().SetBool("isAttacking", true);
         oldAttackerPosition = gameObject.transform.position;
-        windupPosition = gameObject.transform.position + new Vector3(-1, 0, 0);
+        float xPos = gameObject.GetComponent<SpriteRenderer>().flipX ? 1f : -1f;
+        attackerWindUp = gameObject.transform.position + new Vector3(xPos, 0, 0);
         defender = defenderUnit.gameObject;
         isAttacking = true;
     }
@@ -79,29 +81,30 @@ public class CutsceneUnit : MonoBehaviour
     {
         unitObjectRef = unitObj;
         gameObject.GetComponent<Animator>().runtimeAnimatorController = unitObj.GetComponent<Animator>().runtimeAnimatorController;
-        if (gameObject.name == "Attacker")
-        {
-            gameObject.GetComponent<Animator>().SetBool("isAttacking", true);
-        }
         healthbar.SetMaxHealth(unitObj.GetComponent<Unit>().maxHealth);
         healthbar.SetHealth(unitObj.GetComponent<Unit>().health);
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.name == "Attacker")
+        if (isAttacking)
         {
-            gameObject.GetComponent<Animator>().SetBool("isHit", true);
-            unitObjectRef.GetComponent<Unit>().TakeDamage(50);
-            healthbar.SetHealth(unitObjectRef.GetComponent<Unit>().health);
+            col.gameObject.GetComponent<Animator>().SetBool("isHit", true);
+            col.gameObject.GetComponent<CutsceneUnit>().TakeDamage(50);
         }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        unitObjectRef.GetComponent<Unit>().TakeDamage(damage);
+        healthbar.SetHealth(unitObjectRef.GetComponent<Unit>().health);
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.name == "Attacker")
+        if (isAttacking)
         {
-            gameObject.GetComponent<Animator>().SetBool("isHit", false);
+            other.gameObject.GetComponent<Animator>().SetBool("isHit", false);
         }
     }
 }
