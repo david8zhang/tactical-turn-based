@@ -33,7 +33,10 @@ public class EnemyUnits : UnitsManager
     {
         foreach (GameObject unitObj in units)
         {
-            yield return StartCoroutine(ProcessMove(unitObj));
+            if (!unitObj.GetComponent<Unit>().isDead)
+            {
+                yield return StartCoroutine(ProcessMove(unitObj));
+            }
         }
         ResetUnitHighlight();
         gameMap.playerUnits.StartTurn();

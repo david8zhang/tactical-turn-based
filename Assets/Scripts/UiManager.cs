@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UiManager : MonoBehaviour
 {
     [SerializeField]
-    GameObject attackMenu;
+    AttackMenu attackMenu;
 
     [SerializeField]
     internal GameObject gameMap;
@@ -23,29 +23,20 @@ public class UiManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        attackMenu.SetActive(false);
+        attackMenu.Hide();
         attackCutscene.SetActive(false);
     }
 
     internal void ShowAttackMenu(Unit attacker, Unit defender)
     {
-        Sprite attackerSprite = attacker.gameObject.GetComponent<SpriteRenderer>().sprite;
-        Sprite defenderSprite = defender.gameObject.GetComponent<SpriteRenderer>().sprite;
-
-        Image attackerImage = attackMenu.transform.Find("Attacker").GetComponent<Image>();
-        Image defenderImage = attackMenu.transform.Find("Defender").GetComponent<Image>();
-
-        attackerImage.sprite = attackerSprite;
-        defenderImage.sprite = defenderSprite;
-
         this.attacker = attacker;
         this.defender = defender;
-        attackMenu.SetActive(true);
+        attackMenu.Show(attacker, defender);
     }
 
     public void HideAttackMenu()
     {
-        attackMenu.SetActive(false);
+        attackMenu.Hide();
     }
 
     public void OnAttackButtonClick()

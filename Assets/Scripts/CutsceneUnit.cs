@@ -39,7 +39,6 @@ public class CutsceneUnit : MonoBehaviour
         // Wind up animation
         if (attackCountdown > 1.0f && attackCountdown <= 2.0f)
         {
-
             gameObject.transform.position = Vector3.MoveTowards(currentPosition, attackerWindUp, backwardStep);
         }
 

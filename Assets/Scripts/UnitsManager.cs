@@ -9,6 +9,7 @@ public class UnitsManager : MonoBehaviour
 
     internal List<GameObject> units = new List<GameObject>();
     internal List<string> movedUnits = new List<string>();
+    internal List<GameObject> deadUnits = new List<GameObject>();
 
     public struct SquareWithRange
     {
@@ -38,7 +39,7 @@ public class UnitsManager : MonoBehaviour
             int[] pos = unitPositions[i];
             GameObject unitObj = gameMap.SpawnUnit(pos[0], pos[1], reference);
             Unit unit = unitObj.GetComponent<Unit>();
-            unit.Create(pos, namePrefix + i, unitObj);
+            unit.Create(pos, namePrefix + i);
             units.Add(unitObj);
         }
         Destroy(reference);
@@ -50,7 +51,7 @@ public class UnitsManager : MonoBehaviour
         {
             GameObject unitObj = units[i];
             Unit u = unitObj.GetComponent<Unit>();
-            if (u.row == row && u.col == col)
+            if (u.row == row && u.col == col && !u.isDead)
             {
                 return unitObj;
             }
@@ -63,7 +64,7 @@ public class UnitsManager : MonoBehaviour
         for (int i = 0; i < units.Count; i++)
         {
             Unit u = units[i].GetComponent<Unit>();
-            if (u.row == row && u.col == col)
+            if (u.row == row && u.col == col && !u.isDead)
             {
                 return true;
             }
@@ -80,7 +81,7 @@ public class UnitsManager : MonoBehaviour
     }
 
 
-    internal void ClearDeadUnits()
+    internal void MarkDeadUnits()
     {
         for (int i = 0; i < units.Count; i++)
         {
@@ -88,8 +89,7 @@ public class UnitsManager : MonoBehaviour
             if (unit.isDead)
             {
                 unit.Die();
-                units.Remove(unit.gameObject);
-                Destroy(unit.gameObject);
+                deadUnits.Add(unit.gameObject);
             }
         }
     }

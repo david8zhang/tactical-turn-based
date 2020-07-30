@@ -35,26 +35,34 @@ public class AttackCutscene : MonoBehaviour
         attackerUnit.ResetAttacker();
 
         defenderUnit.Attack(attackerUnit);
-        yield return StartCoroutine(WaitForDelay());
+        yield return StartCoroutine(WaitForDelay(true));
 
     }
 
     internal void PlayPlayerAttack()
     {
         attackerUnit.Attack(defenderUnit);
-        StartCoroutine(WaitForDelay());
+        StartCoroutine(WaitForDelay(false));
     }
 
     void HideAttackCutscene()
     {
+        attackerUnit.ResetAttacker();
         defenderUnit.ResetAttacker();
         gameObject.SetActive(false);
     }
 
-    IEnumerator WaitForDelay()
+    IEnumerator WaitForDelay(bool isEnemyCutscene)
     {
         yield return new WaitForSeconds(5);
         HideAttackCutscene();
-        uiManager.GetComponent<UiManager>().OnEnemyCutsceneFinished();
+
+        if (isEnemyCutscene)
+        {
+            uiManager.GetComponent<UiManager>().OnEnemyCutsceneFinished();
+        } else
+        {
+            uiManager.GetComponent<UiManager>().OnPlayerCutsceneFinished();
+        }
     }
 }

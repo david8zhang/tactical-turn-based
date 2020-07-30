@@ -62,8 +62,8 @@ public class GameMap : MonoBehaviour
     internal void OnCutsceneFinished()
     {
         // Remove all dead units
-        playerUnits.ClearDeadUnits();
-        enemyUnits.ClearDeadUnits();
+        playerUnits.MarkDeadUnits();
+        enemyUnits.MarkDeadUnits();
     }
 
     internal void CheckTurnFinished()
