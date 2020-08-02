@@ -17,6 +17,7 @@ public class Unit : MonoBehaviour
     public int defense;
 
     public bool isDead = false;
+    int maxMoveRange = 3;
 
     public void Create(int[] pos, string name)
     {
@@ -24,7 +25,7 @@ public class Unit : MonoBehaviour
         row = pos[0];
         col = pos[1];
         attackRange = 1;
-        moveRange = 3;
+        moveRange = maxMoveRange;
         maxHealth = 100;
         health = 100;
 
@@ -36,6 +37,13 @@ public class Unit : MonoBehaviour
     {
         this.row = row;
         this.col = col;
+        if (gameMap.GetTileAtPosition(row, col).GetTileType() == Tile.TileTypes.Water)
+        {
+            this.moveRange = maxMoveRange - 1;
+        } else
+        {
+            this.moveRange = maxMoveRange;
+        }
         gameMap.MoveObject(row, col, gameObject);
     }
 

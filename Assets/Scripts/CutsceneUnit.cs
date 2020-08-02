@@ -106,4 +106,9 @@ public class CutsceneUnit : MonoBehaviour
             other.gameObject.GetComponent<Animator>().SetBool("isHit", false);
         }
     }
+
+    public bool IsDead()
+    {
+        return unitObjectRef.GetComponent<Unit>().isDead;
+    }
 }

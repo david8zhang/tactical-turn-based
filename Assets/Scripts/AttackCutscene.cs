@@ -34,8 +34,14 @@ public class AttackCutscene : MonoBehaviour
         yield return new WaitForSeconds(2f);
         attackerUnit.ResetAttacker();
 
-        defenderUnit.Attack(attackerUnit);
-        yield return StartCoroutine(WaitForDelay(true));
+        if (!defenderUnit.IsDead())
+        {
+            defenderUnit.Attack(attackerUnit);
+            yield return StartCoroutine(WaitForDelay(true));
+        } else
+        {
+            yield return StartCoroutine(WaitForDelay(true, 1));
+        }
 
     }
 
@@ -52,9 +58,9 @@ public class AttackCutscene : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    IEnumerator WaitForDelay(bool isEnemyCutscene)
+    IEnumerator WaitForDelay(bool isEnemyCutscene, int numSeconds = 5)
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(numSeconds);
         HideAttackCutscene();
 
         if (isEnemyCutscene)

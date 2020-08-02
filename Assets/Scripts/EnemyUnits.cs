@@ -81,7 +81,8 @@ public class EnemyUnits : UnitsManager
     private int[] GetClosestSquareToPlayerUnit(GameObject unitObj)
     {
         Unit unit = unitObj.GetComponent<Unit>();
-        List<SquareWithRange> moveableSquares = GetSquaresWithinRange(unit.row, unit.col, unit.moveRange);
+        int moveRange = unit.moveRange;
+        List<SquareWithRange> moveableSquares = GetSquaresWithinRange(unit.row, unit.col, moveRange);
         int[] coord = null;
         int distance = Int32.MaxValue;
         foreach (SquareWithRange sq in moveableSquares)
@@ -89,14 +90,17 @@ public class EnemyUnits : UnitsManager
             foreach (GameObject playerUnitObj in gameMap.playerUnits.units)
             {
                 Unit playerUnit = playerUnitObj.GetComponent<Unit>();
-                int[] playerCoordinates = new int[] { playerUnit.row, playerUnit.col };
-                int distToPlayer = ManhattanDistance(sq.coordinates, playerCoordinates);
-                if (distToPlayer < distance &&
-                    !IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]) &&
-                    !gameMap.playerUnits.IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]))
+                if (!playerUnit.isDead)
                 {
-                    coord = sq.coordinates;
-                    distance = distToPlayer;
+                    int[] playerCoordinates = new int[] { playerUnit.row, playerUnit.col };
+                    int distToPlayer = ManhattanDistance(sq.coordinates, playerCoordinates);
+                    if (distToPlayer < distance &&
+                        !IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]) &&
+                        !gameMap.playerUnits.IsUnitAtPosition(sq.coordinates[0], sq.coordinates[1]))
+                    {
+                        coord = sq.coordinates;
+                        distance = distToPlayer;
+                    }
                 }
             }
         }

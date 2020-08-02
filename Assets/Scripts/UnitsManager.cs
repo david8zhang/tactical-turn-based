@@ -7,6 +7,9 @@ public class UnitsManager : MonoBehaviour
     [SerializeField]
     internal GameMap gameMap;
 
+    [SerializeField]
+    internal int numUnits = 2;
+
     internal List<GameObject> units = new List<GameObject>();
     internal List<string> movedUnits = new List<string>();
     internal List<GameObject> deadUnits = new List<GameObject>();
@@ -33,16 +36,30 @@ public class UnitsManager : MonoBehaviour
 
     internal void SpawnUnits(GameObject reference, List<int[]> unitPositions)
     {
-        string namePrefix = side == Side.Player ? "player unit " : "enemy unit ";
-        for (int i = 0; i < unitPositions.Count; i++)
+        for (int i = 0; i < gameMap.rows; i++)
         {
-            int[] pos = unitPositions[i];
-            GameObject unitObj = gameMap.SpawnUnit(pos[0], pos[1], reference);
-            Unit unit = unitObj.GetComponent<Unit>();
-            unit.Create(pos, namePrefix + i);
-            units.Add(unitObj);
+            for (int j = 0; j < gameMap.cols; j++)
+            {
+                bool spawnCondition = side == Side.Player ? j <= gameMap.cols / 2 : j > gameMap.cols / 2;
+                Tile tile = gameMap.GetTileAtPosition(i, j);
+                if (tile.GetTileType() != Tile.TileTypes.Stone &&
+                    tile.GetTileType() != Tile.TileTypes.Water &&
+                    units.Count < numUnits && spawnCondition)
+                {
+                    CreateUnit(i, j, reference);
+                }
+            }
         }
         Destroy(reference);
+    }
+
+    internal void CreateUnit(int i, int j, GameObject reference)
+    {
+        string namePrefix = side == Side.Player ? "player unit " : "enemy unit ";
+        GameObject unitObj = gameMap.SpawnUnit(i, j, reference);
+        Unit unit = unitObj.GetComponent<Unit>();
+        unit.Create(new int[2] { i, j }, namePrefix + units.Count);
+        units.Add(unitObj);
     }
 
     internal GameObject GetUnitObjAtPosition(int row, int col)
@@ -123,7 +140,8 @@ public class UnitsManager : MonoBehaviour
             for (int i = 0; i < size; i++)
             {
                 int[] position = queue.Dequeue();
-                if (!set.Contains(position[0] + ", " + position[1]))
+                bool isStone = gameMap.GetTileAtPosition(position[0], position[1]).GetTileType() == Tile.TileTypes.Stone;
+                if (!set.Contains(position[0] + ", " + position[1]) && !isStone)
                 {
                     set.Add(position[0] + ", " + position[1]);
                     SquareWithRange sq;

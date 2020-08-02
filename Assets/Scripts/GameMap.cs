@@ -31,6 +31,16 @@ public class GameMap : MonoBehaviour
     [SerializeField]
     internal Camera mainCamera;
 
+    // Tile References
+    [SerializeField]
+    internal GameObject stoneTile;
+
+    [SerializeField]
+    internal GameObject waterTile;
+
+    [SerializeField]
+    internal GameObject groundTile;
+
     private void Awake()
     {
         CenterCamera();
@@ -46,17 +56,38 @@ public class GameMap : MonoBehaviour
 
     void GenerateGrid()
     {
-        GameObject referenceTile = (GameObject)Instantiate(Resources.Load("GroundTile"));
         for (int row = 0; row < rows; row++)
         {
             for (int col = 0; col < cols; col++)
             {
-                GameObject tile = SpawnUnit(row, col, referenceTile);
-                tileMap.Add(row + "," + col, tile);
+                GenerateTile(row, col);
+                
             }
         }
+    }
 
-        Destroy(referenceTile);
+    internal void GenerateTile(int row, int col)
+    {
+        System.Random rnd = new System.Random();
+        GameObject refTile = null;
+        int roll = rnd.Next(1, 10);
+
+        // 20% chance to generate stone tile
+        if (roll <= 2)
+        {
+            refTile = stoneTile;
+        }
+        // 20% chance to generate water tile
+        else if (roll > 2 && roll <= 4)
+        {
+            refTile = waterTile;
+        }
+        else if (roll > 2)
+        {
+            refTile = groundTile;
+        }
+        GameObject tile = SpawnUnit(row, col, refTile);
+        tileMap.Add(row + "," + col, tile);
     }
 
     internal void OnCutsceneFinished()
@@ -79,8 +110,15 @@ public class GameMap : MonoBehaviour
     internal void ChangeTileColor(int row, int col, Color color)
     {
         string key = row + "," + col;
+        Debug.Log(key + ":" + color);
         GameObject cursorTile = tileMap[key];
         cursorTile.GetComponent<SpriteRenderer>().color = color;
+    }
+
+    internal void ResetTileColor(int row, int col)
+    {
+        Tile tile = GetTileAtPosition(row, col);
+        ChangeTileColor(row, col, tile.GetDefaultColor());
     }
 
     internal GameObject SpawnUnit(int row, int col, GameObject reference)
@@ -104,5 +142,12 @@ public class GameMap : MonoBehaviour
         float posX = col * tileSize;
         float posY = row * -tileSize;
         return new Vector2(posX, posY);
+    }
+
+    internal Tile GetTileAtPosition(int row, int col)
+    {
+        string key = row + "," + col;
+        GameObject tileObj = tileMap[key];
+        return tileObj.GetComponent<Tile>();
     }
 }

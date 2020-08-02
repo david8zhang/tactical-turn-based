@@ -92,7 +92,7 @@ public class Cursor : MonoBehaviour
                 {
                     attackableEnemies = gameMap.playerUnits.GetAttackableEnemies(cursorX, cursorY);
                     attackableTargetIndex = 0;
-                    HighlightAttackableTargetTile(Color.red);
+                    HighlightAttackableTargetTile(true);
                     currState = CursorState.SelectTarget;
                 } else
                 {
@@ -118,10 +118,16 @@ public class Cursor : MonoBehaviour
         }
     }
 
-    void HighlightAttackableTargetTile(Color color)
+    void HighlightAttackableTargetTile(bool isReset)
     {
         int[] coord = attackableEnemies[attackableTargetIndex];
-        gameMap.ChangeTileColor(coord[0], coord[1], color);
+        if (isReset)
+        {
+            gameMap.ResetTileColor(coord[0], coord[1]);
+        } else
+        {
+            gameMap.ChangeTileColor(coord[0], coord[1], Color.red);
+        }
 
         Unit attackUnit = gameMap.playerUnits.GetUnitObjAtPosition(cursorX, cursorY).GetComponent<Unit>();
         Unit defenderUnit = gameMap.enemyUnits.GetUnitObjAtPosition(coord[0], coord[1]).GetComponent<Unit>();
@@ -132,15 +138,15 @@ public class Cursor : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            HighlightAttackableTargetTile(Color.white);
+            HighlightAttackableTargetTile(true);
             attackableTargetIndex = Mathf.Min(attackableTargetIndex + 1, attackableEnemies.Count - 1);
-            HighlightAttackableTargetTile(Color.red);
+            HighlightAttackableTargetTile(false);
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            HighlightAttackableTargetTile(Color.white);
+            HighlightAttackableTargetTile(true);
             attackableTargetIndex = Mathf.Max(attackableTargetIndex - 1, 0);
-            HighlightAttackableTargetTile(Color.red);
+            HighlightAttackableTargetTile(false);
         }
     }
 
@@ -242,7 +248,7 @@ public class Cursor : MonoBehaviour
         foreach (UnitsManager.SquareWithRange s in squaresToHighlight)
         {
             int[] coord = s.coordinates;
-            gameMap.ChangeTileColor(coord[0], coord[1], Color.white);
+            gameMap.ResetTileColor(coord[0], coord[1]);
         }
     }
 
@@ -289,7 +295,7 @@ public class Cursor : MonoBehaviour
         if (attackableEnemies.Count > 0)
         {
             int[] coord = attackableEnemies[attackableTargetIndex];
-            gameMap.ChangeTileColor(coord[0], coord[1], Color.white);
+            gameMap.ResetTileColor(coord[0], coord[1]);
         }
     }
 
