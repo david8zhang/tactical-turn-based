@@ -5,19 +5,20 @@ using UnityEngine;
 
 public class EnemyUnits : UnitsManager
 {
-    int unitToMoveIndex = 0;
+    public TextAsset jsonFile;
+    public UnitDataList unitDataList;
+
+    public void Awake()
+    {
+        unitDataList = JsonUtility.FromJson<UnitDataList>(jsonFile.text);
+    }
+
     // Start is called before the first frame update
     public override void Start()
     {
         SetSide(Side.Enemy);
-        List<int[]> unitPositions = new List<int[]>
-        {
-            new int[] { 0, gameMap.cols - 1 },
-            new int[] { 1, gameMap.cols - 2 },
-            new int[] { 2, gameMap.cols - 1 }
-        };
         GameObject maskReference = (GameObject)Instantiate(Resources.Load("Mask"));
-        SpawnUnits(maskReference, unitPositions);
+        SpawnUnits(maskReference, unitDataList);
         FlipUnits();
     }
 

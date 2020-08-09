@@ -475,7 +475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameMap: {fileID: 557390096}
-  numUnits: 2
+  jsonFile: {fileID: 4900000, guid: 1e83a27c604e344aeb71ed2d62f09cb3, type: 3}
 --- !u!114 &557390095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -515,7 +515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameMap: {fileID: 557390096}
-  numUnits: 2
+  jsonFile: {fileID: 4900000, guid: 4c9182b8decd04a44a2fde505080727a, type: 3}
 --- !u!114 &684343204 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 685712502231526133, guid: 3e21da59b65ff43bf90f0cc436b4e871,

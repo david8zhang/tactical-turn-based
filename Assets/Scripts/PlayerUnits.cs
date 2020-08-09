@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class PlayerUnits : UnitsManager
 {
+    public TextAsset jsonFile;
+    public UnitDataList unitDataList;
+
+    public void Awake()
+    {
+        unitDataList = JsonUtility.FromJson<UnitDataList>(jsonFile.text);
+    }
+
     // Start is called before the first frame update
     public override void Start()
     {
@@ -11,14 +19,8 @@ public class PlayerUnits : UnitsManager
 
         // Spawn player units
         SetSide(Side.Player);
-        List<int[]> unitPositions = new List<int[]>
-        {
-            new int[] { 0, 0 },
-            new int[] { 1, 1 },
-            new int[] { 2, 0 }
-        };
         GameObject frogReference = (GameObject)Instantiate(Resources.Load("Frog"));
-        SpawnUnits(frogReference, unitPositions);
+        SpawnUnits(frogReference, unitDataList);
     }
 
     internal void FinishTurn()

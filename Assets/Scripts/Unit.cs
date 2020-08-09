@@ -33,6 +33,21 @@ public class Unit : MonoBehaviour
         defense = 25;
     }
 
+    public void CreateFromUnitData(int[] pos, UnitData unitData)
+    {
+        unitName = unitData.name;
+        attack = unitData.attack;
+        defense = unitData.defense;
+        maxHealth = unitData.health;
+        health = maxHealth;
+        moveRange = unitData.moveRange;
+        attackRange = unitData.attackRange;
+
+        // Positioning
+        row = pos[0];
+        col = pos[1];
+    }
+
     public void Move(int row, int col, GameMap gameMap)
     {
         this.row = row;
@@ -45,11 +60,6 @@ public class Unit : MonoBehaviour
             this.moveRange = maxMoveRange;
         }
         gameMap.MoveObject(row, col, gameObject);
-    }
-
-    public void CalculateDamage(Unit other)
-    {
-
     }
 
     public void TakeDamage(int damage)

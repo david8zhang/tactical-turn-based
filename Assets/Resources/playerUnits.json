@@ -1,0 +1,28 @@
+﻿{
+    "units": [
+        {
+            "name": "Bob",
+            "attack": 100,
+            "defense": 150,
+            "health": 200,
+            "moveRange": 3,
+            "attackRange":  1
+        },
+        {
+            "name": "Martin",
+            "attack": 150,
+            "defense": 100,
+            "health": 200,
+            "moveRange": 2,
+            "attackRange": 2
+        },
+        {
+            "name": "George",
+            "attack": 200,
+            "defense": 50,
+            "health": 200,
+            "moveRange": 4,
+            "attackRange":  1
+        }
+    ]
+}

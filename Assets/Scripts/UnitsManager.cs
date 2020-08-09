@@ -7,9 +7,6 @@ public class UnitsManager : MonoBehaviour
     [SerializeField]
     internal GameMap gameMap;
 
-    [SerializeField]
-    internal int numUnits = 2;
-
     internal List<GameObject> units = new List<GameObject>();
     internal List<string> movedUnits = new List<string>();
     internal List<GameObject> deadUnits = new List<GameObject>();
@@ -34,8 +31,10 @@ public class UnitsManager : MonoBehaviour
         this.side = side;
     }
 
-    internal void SpawnUnits(GameObject reference, List<int[]> unitPositions)
+    internal void SpawnUnits(GameObject reference, UnitDataList unitDataList)
     {
+        int unitDataIndex = 0;
+        UnitData[] unitDataArr = unitDataList.units;
         for (int i = 0; i < gameMap.rows; i++)
         {
             for (int j = 0; j < gameMap.cols; j++)
@@ -44,21 +43,21 @@ public class UnitsManager : MonoBehaviour
                 Tile tile = gameMap.GetTileAtPosition(i, j);
                 if (tile.GetTileType() != Tile.TileTypes.Stone &&
                     tile.GetTileType() != Tile.TileTypes.Water &&
-                    units.Count < numUnits && spawnCondition)
+                    spawnCondition && unitDataIndex < unitDataArr.Length)
                 {
-                    CreateUnit(i, j, reference);
+                    UnitData unitData = unitDataArr[unitDataIndex++];
+                    CreateUnit(i, j, reference, unitData);
                 }
             }
         }
         Destroy(reference);
     }
 
-    internal void CreateUnit(int i, int j, GameObject reference)
+    internal void CreateUnit(int i, int j, GameObject reference, UnitData unitData)
     {
-        string namePrefix = side == Side.Player ? "player unit " : "enemy unit ";
         GameObject unitObj = gameMap.SpawnUnit(i, j, reference);
         Unit unit = unitObj.GetComponent<Unit>();
-        unit.Create(new int[2] { i, j }, namePrefix + units.Count);
+        unit.CreateFromUnitData(new int[2] { i, j }, unitData);
         units.Add(unitObj);
     }
 
