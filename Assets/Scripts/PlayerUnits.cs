@@ -39,6 +39,7 @@ public class PlayerUnits : UnitsManager
         List<int[]> squaresWithinAttackRange = GetSquaresWithinAttackRange(row, col, unit.attackRange);
         foreach (int[] coord in squaresWithinAttackRange)
         {
+            Debug.Log(coord[0] + ", " + coord[1]);
             if (gameMap.enemyUnits.IsUnitAtPosition(coord[0], coord[1]))
             {
                 return true;
@@ -64,10 +65,6 @@ public class PlayerUnits : UnitsManager
 
     List<int[]> GetSquaresWithinAttackRange(int startX, int startY, int attackRange)
     {
-        if (gameMap.GetTileAtPosition(startX, startY).GetTileType() == Tile.TileTypes.Water)
-        {
-            attackRange -= 1;
-        }
         // Do a BFS to find all positions within moveRange
         int currRange = 0;
         HashSet<string> set = new HashSet<string>();
@@ -122,7 +119,6 @@ public class PlayerUnits : UnitsManager
     internal bool HasAllPlayerUnitsMoved()
     {
         int numAliveUnits = units.Count - deadUnits.Count;
-        Debug.Log(numAliveUnits);
         return movedUnits.Count == numAliveUnits;
     }
 }

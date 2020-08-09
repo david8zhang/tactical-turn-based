@@ -97,6 +97,7 @@ public class CutsceneUnit : MonoBehaviour
     {
         unitObjectRef.GetComponent<Unit>().TakeDamage(damage);
         healthbar.SetHealth(unitObjectRef.GetComponent<Unit>().health);
+        DamagePopup.Create(transform.position, damage, false);
     }
 
     void OnTriggerExit2D(Collider2D other)

@@ -110,7 +110,6 @@ public class GameMap : MonoBehaviour
     internal void ChangeTileColor(int row, int col, Color color)
     {
         string key = row + "," + col;
-        Debug.Log(key + ":" + color);
         GameObject cursorTile = tileMap[key];
         cursorTile.GetComponent<SpriteRenderer>().color = color;
     }

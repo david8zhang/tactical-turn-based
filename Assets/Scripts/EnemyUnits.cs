@@ -71,7 +71,6 @@ public class EnemyUnits : UnitsManager
 
         if (possibleTargets.Count > 0)
         {
-            Debug.Log(unit.unitName + "attacks!");
             // TODO: Intelligently select an enemy to attack
             Unit playerUnitToAttack = possibleTargets[0].GetComponent<Unit>();
             yield return StartCoroutine(gameMap.uiManager.GetComponent<UiManager>().PlayEnemyAttackCutscene(unit, playerUnitToAttack));
